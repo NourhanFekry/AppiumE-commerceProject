@@ -1,9 +1,15 @@
 package tests;
 
+import com.google.common.io.Files;
 import io.appium.java_client.android.AndroidDriver;
+import io.qameta.allure.Allure;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.CartPage;
@@ -12,6 +18,9 @@ import pages.CheckoutOverviewPage;
 import pages.LoginPage;
 import utils.JsonFileManager;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -45,22 +54,27 @@ public class CheckoutTest {
     }
 
     @Test
-    public void completeCheckoutInformation() {
+    public void completeCheckout() {
         testData = new JsonFileManager(checkOutDataPath);
         new CheckoutInformationPage(driver)
                 .setFirstName(testData.getTestData("checkout.firstName"))
                 .setLastName(testData.getTestData("checkout.lastName"))
                 .setPostalCode(testData.getTestData("checkout.postalCode"))
                 .clickOnContinueButton();
-    }
-
-    @Test
-    public void completeCheckoutOverView() {
         String priceOnOverview = new CheckoutOverviewPage(driver).validatePrice();
         String priceOnCart = new CartPage(driver).validateProductCartPrice();
         Assert.assertEquals(priceOnOverview, priceOnCart);
         new CheckoutOverviewPage(driver)
                 .clickOnFinishButton()
                 .validateCompletePurchase();
+    }
+
+    @AfterMethod
+    public void TakeScreenshot(ITestResult iTestResult) throws IOException {
+        File screenShot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        File newScreenShot = new File("src/main/screenShots/" + iTestResult.getName() + ".png");
+        Files.move(screenShot, newScreenShot);
+        Allure.addAttachment(iTestResult.getName(), new FileInputStream(newScreenShot));
+        driver.quit();
     }
 }

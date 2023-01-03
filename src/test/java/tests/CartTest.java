@@ -1,9 +1,14 @@
 package tests;
 
+import com.google.common.io.Files;
 import io.appium.java_client.android.AndroidDriver;
+import io.qameta.allure.Allure;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
-import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -12,6 +17,9 @@ import pages.LoginPage;
 import pages.ProductsPage;
 import utils.JsonFileManager;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -62,5 +70,13 @@ public class CartTest {
         softAssert.assertEquals(removedProduct, 0);
         softAssert.assertEquals(emptyCartIcon, 0);
         softAssert.assertAll();
+    }
+    @AfterMethod
+    public void TakeScreenshot(ITestResult iTestResult) throws IOException {
+        File screenShot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        File newScreenShot = new File("src/main/screenShots/" + iTestResult.getName() + ".png");
+        Files.move(screenShot, newScreenShot);
+        Allure.addAttachment(iTestResult.getName(), new FileInputStream(newScreenShot));
+        driver.quit();
     }
 }

@@ -19,7 +19,7 @@ public class CartPage {
 
     public CartPage(WebDriver driver) {
         this.driver = driver;
-        driverWait = new WebDriverWait(driver, Duration.ofMinutes(1));
+        driverWait = new WebDriverWait(driver, Duration.ofSeconds(50));
     }
 
     public String validateSauceBagCartTitle() {

@@ -1,13 +1,23 @@
 package tests;
 
+import com.google.common.io.Files;
 import io.appium.java_client.android.AndroidDriver;
+import io.qameta.allure.Allure;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import pages.LoginPage;
 import utils.JsonFileManager;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -54,14 +64,14 @@ public class LoginTest {
         Assert.assertEquals(errorMessage, "Username and password do not match any user in this service.");
     }
 
-//    @AfterMethod
-//    public void TakeScreenshot(ITestResult iTestResult) throws IOException {
-//        var camera = (TakesScreenshot) driver;
-//        File screenShot = camera.getScreenshotAs(OutputType.FILE);
-//        Files.move(screenShot, new File("src/main/screenShots/" + "login" + ".png"));
-//        Allure.addAttachment("src/main/screenShots", new FileInputStream(screenShot));
-//        driver.quit();
-//    }
+    @AfterMethod
+    public void TakeScreenshot(ITestResult iTestResult) throws IOException {
+        File screenShot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+        File newScreenShot = new File("src/main/screenShots/" + iTestResult.getName() + ".png");
+        Files.move(screenShot, newScreenShot);
+        Allure.addAttachment(iTestResult.getName(), new FileInputStream(newScreenShot));
+        driver.quit();
+    }
 
 }
 
